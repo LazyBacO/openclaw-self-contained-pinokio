@@ -3,13 +3,14 @@
     {
       "method": "shell.run",
       "params": {
-        "message": [
-          "npm i -g clawdbot",
-          "clawdbot onboard --flow quickstart --non-interactive --skip-skills --accept-risk"
-        ],
-        "on": [{
-          "event": "/Error:.*gateway.*closed/i", "break": false
-        }]
+        "message": "npm i -g clawdbot"
+      }
+    },
+    {
+      "method": "shell.run",
+      "params": {
+        "input": true,
+        "message": "clawdbot onboard"
       }
     }
   ]
