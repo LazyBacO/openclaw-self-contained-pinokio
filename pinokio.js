@@ -47,12 +47,26 @@ module.exports = {
         href: "install.json",
       }]
     } else if (running.start) {
-      return [{
-        default: true,
-        icon: 'fa-solid fa-terminal',
-        text: "Terminal",
-        href: "start.json",
-      }]
+      let local = info.local("start.json")
+      if (local && local.url) {
+        return [{
+          default: true,
+          icon: "fa-solid fa-rocket",
+          text: "Open Web UI",
+          href: local.url,
+        }, {
+          icon: 'fa-solid fa-terminal',
+          text: "Terminal",
+          href: "start.json",
+        }]
+      } else {
+        return [{
+          default: true,
+          icon: 'fa-solid fa-terminal',
+          text: "Terminal",
+          href: "start.json",
+        }]
+      }
     } else {
       return [{
         icon: "fa-solid fa-power-off",

@@ -3,10 +3,13 @@
     {
       "method": "shell.run",
       "params": {
-        "chain": true,
         "message": [
-          "npm i -g clawdbot"
-        ]
+          "npm i -g clawdbot",
+          "clawdbot onboard --flow quickstart --non-interactive --skip-skills --accept-risk"
+        ],
+        "on": [{
+          "event": "/Error:.*gateway.*closed/i", "break": false
+        }]
       }
     }
   ]
