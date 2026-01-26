@@ -47,6 +47,10 @@ module.exports = {
       icon: "fa-solid fa-arrows-rotate",
       text: "Update",
       href: "update.js",
+    }, {
+      icon: "fa-regular fa-trash-can",
+      text: "Uninstall",
+      href: "uninstall.js",
     }]
   }
 }
