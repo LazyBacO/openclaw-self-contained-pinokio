@@ -3,14 +3,18 @@
     {
       "method": "shell.run",
       "params": {
-        "message": "npm i -g clawdbot"
+        "message": "npm i -g clawdbot@latest"
       }
     },
     {
       "method": "shell.run",
       "params": {
         "input": true,
-        "message": "clawdbot onboard"
+        "message": "clawdbot onboard",
+        "on": [{
+          "event": "/.*onboarding complete.*/i",
+          "kill": true
+        }]
       }
     }
   ]

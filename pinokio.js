@@ -37,7 +37,6 @@ module.exports = {
     **********************************************************************************************/
     let running = {
       install: info.running("install.json"),
-      start: info.running("start.json"),
     }
     if (running.install) {
       return [{
@@ -46,33 +45,8 @@ module.exports = {
         text: "Installing",
         href: "install.json",
       }]
-    } else if (running.start) {
-      let local = info.local("start.json")
-      if (local && local.url) {
-        return [{
-          default: true,
-          icon: "fa-solid fa-rocket",
-          text: "Open Web UI",
-          href: local.url,
-        }, {
-          icon: 'fa-solid fa-terminal',
-          text: "Terminal",
-          href: "start.json",
-        }]
-      } else {
-        return [{
-          default: true,
-          icon: 'fa-solid fa-terminal',
-          text: "Terminal",
-          href: "start.json",
-        }]
-      }
     } else {
       return [{
-        icon: "fa-solid fa-power-off",
-        text: "Start",
-        href: "start.json",
-      }, {
         icon: "fa-solid fa-plug",
         text: "Install",
         href: "install.json",
