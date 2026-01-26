@@ -35,22 +35,18 @@ module.exports = {
     *     let absolute_path = info.path("install.json")
     * 
     **********************************************************************************************/
-    let running = {
-      install: info.running("install.json"),
-    }
-    if (running.install) {
-      return [{
-        default: true,
-        icon: "fa-solid fa-plug",
-        text: "Installing",
-        href: "install.json",
-      }]
-    } else {
-      return [{
-        icon: "fa-solid fa-plug",
-        text: "Install",
-        href: "install.json",
-      }]
-    }
+    return [{
+      icon: "fa-solid fa-plug",
+      text: "Install",
+      href: "install.json",
+    }, {
+      icon: "fa-solid fa-circle-play",
+      text: "Start",
+      href: "start.js",
+    }, {
+      icon: "fa-solid fa-arrows-rotate",
+      text: "Update",
+      href: "update.js",
+    }]
   }
 }
