@@ -4,7 +4,8 @@ module.exports = {
     method: "shell.run",
     params: {
       env: {
-        OLLAMA_API_KEY: "ollama-local"
+        OLLAMA_API_KEY: "ollama-local",
+        OPENCLAW_GATEWAY_TOKEN: "pinokio-local-token"
       },
       message: [
         "openclaw config set gateway.mode local",
@@ -21,13 +22,14 @@ module.exports = {
     method: "shell.run",
     params: {
       env: {
-        OLLAMA_API_KEY: "ollama-local"
+        OLLAMA_API_KEY: "ollama-local",
+        OPENCLAW_GATEWAY_TOKEN: "pinokio-local-token"
       },
       message: [
-        "openclaw dashboard"
+        "openclaw dashboard --no-open"
       ],
       on: [{
-        event: "/(http:\\/\\/[0-9.:]+)/",
+        event: "/(http:\\/\\/[0-9.:]+\\S*)/",
         done: true
       }]
     }
