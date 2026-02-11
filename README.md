@@ -8,7 +8,22 @@ This launcher runs OpenClaw with a fully local model stack:
 
 No LM Studio dependency is required.
 
-## How To Use
+## Install This Repo
+
+### Prerequisites
+
+- Pinokio installed on your machine
+- Internet access for first-time installs (`openclaw`, `ollama`, and model download)
+
+### Option A: Install via Pinokio (Recommended)
+
+1. In Pinokio, add/download this repository:
+   - `https://github.com/LazyBacO/openclaw-self-contained-pinokio`
+2. Open the project in Pinokio.
+3. Click `Install` once.
+4. Wait for installation to finish (first model pull is large).
+
+## Execute The Repo
 
 1. Click `Install` in Pinokio.
 2. Wait for:
@@ -20,6 +35,14 @@ No LM Studio dependency is required.
 4. Open the `Open Dashboard` tab from the launcher.
 
 If no Ollama models are detected, run `ollama serve` once in a terminal, then run `Install` again.
+
+### Option B: Clone then open in Pinokio
+
+```bash
+git clone https://github.com/LazyBacO/openclaw-self-contained-pinokio.git
+```
+
+Then open that folder as a Pinokio project and run `Install`, then `Start`.
 
 ## What The Scripts Do
 
