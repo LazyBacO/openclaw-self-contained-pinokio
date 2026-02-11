@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenClaw Finance Copilot</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main class="layout">
+    <header class="panel hero">
+      <p class="eyebrow">OpenClaw Agent Workflow</p>
+      <h1>Finance Copilot (CAD)</h1>
+      <p>
+        Enter your CAD account balances and stock positions. Then run a 2-agent loop
+        (`strategist` + `builder`) to build a growth plan.
+      </p>
+      <p class="warning">
+        Educational use only. This tool does not replace professional financial advice.
+      </p>
+    </header>
+
+    <section class="panel">
+      <h2>Portfolio Input</h2>
+      <div class="grid two">
+        <label>
+          Owner
+          <input id="owner" type="text" placeholder="Example: Alex">
+        </label>
+        <label>
+          Main objective
+          <input id="objective" type="text" placeholder="Example: CAD growth with controlled risk">
+        </label>
+      </div>
+
+      <div class="split">
+        <div>
+          <h3>Accounts (CAD)</h3>
+          <form id="account-form" class="inline-form">
+            <input id="account-name" type="text" placeholder="Account name" required>
+            <input id="account-type" type="text" placeholder="Type (TFSA, RRSP, Cash, ...)" required>
+            <input id="account-balance" type="number" step="0.01" placeholder="Balance CAD" required>
+            <button type="submit">Add account</button>
+          </form>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Balance CAD</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="accounts-body"></tbody>
+          </table>
+        </div>
+
+        <div>
+          <h3>Stock holdings</h3>
+          <form id="holding-form" class="inline-form">
+            <input id="holding-symbol" type="text" placeholder="Ticker (AAPL, RY.TO, ...)" required>
+            <input id="holding-shares" type="number" step="0.0001" placeholder="Shares" required>
+            <input id="holding-avg-cost" type="number" step="0.01" placeholder="Avg cost CAD" required>
+            <input id="holding-current-price" type="number" step="0.01" placeholder="Current price CAD" required>
+            <input id="holding-account-type" type="text" placeholder="Account type">
+            <button type="submit">Add stock</button>
+          </form>
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Shares</th>
+                <th>Avg CAD</th>
+                <th>Price CAD</th>
+                <th>Value CAD</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="holdings-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="totals">
+        <div>
+          <span>Accounts total:</span>
+          <strong id="accounts-total">$0.00</strong>
+        </div>
+        <div>
+          <span>Holdings market value:</span>
+          <strong id="holdings-total">$0.00</strong>
+        </div>
+        <div>
+          <span>Estimated total portfolio:</span>
+          <strong id="portfolio-total">$0.00</strong>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="save-portfolio">Save portfolio</button>
+        <p id="save-status" class="status"></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Run Agent Strategy</h2>
+      <div class="grid three">
+        <label>
+          Goal override
+          <input id="strategy-goal" type="text" placeholder="Optional override goal">
+        </label>
+        <label>
+          Risk profile
+          <select id="strategy-risk">
+            <option value="conservative">Conservative</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="aggressive">Aggressive</option>
+          </select>
+        </label>
+        <label>
+          Horizon (months)
+          <input id="strategy-horizon" type="number" min="1" step="1" value="24">
+        </label>
+      </div>
+      <div class="actions">
+        <button id="run-strategy">Generate collaborative strategy</button>
+        <p id="strategy-status" class="status"></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>GitHub Auto Save (Every 30 Minutes)</h2>
+      <p class="muted">
+        When enabled, the app runs <code>git add -A</code>, <code>git commit</code>, and
+        <code>git push</code> every 30 minutes if there are changes, with alternation between
+        Strategist and Builder.
+      </p>
+      <div class="grid two">
+        <label class="checkbox">
+          <input id="git-enabled" type="checkbox">
+          Enable auto save every 30 minutes
+        </label>
+        <label class="checkbox">
+          <input id="git-consult" type="checkbox">
+          Agents consult each other before commit
+        </label>
+      </div>
+      <div class="grid three">
+        <label>
+          Remote
+          <input id="git-remote" type="text" value="origin">
+        </label>
+        <label>
+          Branch
+          <input id="git-branch" type="text" value="main">
+        </label>
+        <label>
+          Commit prefix
+          <input id="git-prefix" type="text" value="finance-autosave">
+        </label>
+      </div>
+      <div class="grid two">
+        <label>
+          Next agent turn
+          <input id="git-next-agent" type="text" readonly>
+        </label>
+        <label>
+          Last actor used
+          <input id="git-last-actor" type="text" readonly>
+        </label>
+      </div>
+      <div class="grid two">
+        <label>
+          Strategist commit name
+          <input id="git-strategist-name" type="text" placeholder="Strategist">
+        </label>
+        <label>
+          Strategist commit email
+          <input id="git-strategist-email" type="email" placeholder="strategist@users.noreply.github.com">
+        </label>
+      </div>
+      <div class="grid two">
+        <label>
+          Builder commit name
+          <input id="git-builder-name" type="text" placeholder="Builder">
+        </label>
+        <label>
+          Builder commit email
+          <input id="git-builder-email" type="email" placeholder="builder@users.noreply.github.com">
+        </label>
+      </div>
+      <div class="actions">
+        <button id="save-git-settings">Save git settings</button>
+        <button id="run-git-now">Run git save now</button>
+        <p id="git-status" class="status"></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Agent Collaboration Output</h2>
+      <div id="strategy-output" class="stack">
+        <p class="muted">No strategy generated yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

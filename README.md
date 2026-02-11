@@ -1,104 +1,223 @@
-# OpenClaw (Self-Contained Local Launcher)
+# OpenClaw Finance Copilot (Pinokio Launcher)
 
-This launcher runs OpenClaw with a fully local model stack:
+This project provides a local Finance Copilot app integrated with OpenClaw agents.
 
-- OpenClaw gateway
-- Ollama local runtime
-- `gpt-oss:20b` model (default)
+You manually enter:
+- CAD account balances
+- account types (TFSA, RRSP, cash, etc.)
+- stock holdings (symbol, shares, average cost, current price)
 
-No LM Studio dependency is required.
+Then two OpenClaw agents collaborate:
+- `strategist`: first strategy draft + questions
+- `builder`: implementation feedback + risks
+- `strategist` again: final synthesis plan
 
-## Install This Repo
+All outputs are educational only (not professional financial advice).
 
-### Prerequisites
+## How To Use
 
-- Pinokio installed on your machine
-- Internet access for first-time installs (`openclaw`, `ollama`, and model download)
+1. Open this project in Pinokio.
+2. Run `Install` once.
+3. Launch `Finance Copilot` from the menu.
+4. Add your portfolio data in CAD.
+5. (Optional) Configure `GitHub Auto Save`:
+   - Enable auto save every 30 minutes
+   - Set remote/branch
+   - Set Strategist + Builder commit identities
+   - Keep consultation enabled so they review each save together
+6. Click `Save portfolio`.
+7. Click `Generate collaborative strategy`.
+8. Review 3 outputs:
+   - Strategist round 1
+   - Builder round 1
+   - Strategist final synthesis
 
-## Open In Pinokio
-
-1. Launch Pinokio.
-2. Go to the home screen and choose `Discover` (or `Add` / `Import from URL`, depending on your Pinokio version).
-3. Paste this repo URL:
-   - `https://github.com/LazyBacO/openclaw-self-contained-pinokio`
-4. Confirm download/import.
-5. Open the imported project from your Pinokio library.
-6. In the project UI, click `Install`, then `Start`.
-
-### Option A: Install via Pinokio (Recommended)
-
-1. In Pinokio, add/download this repository:
-   - `https://github.com/LazyBacO/openclaw-self-contained-pinokio`
-2. Open the project in Pinokio.
-3. Click `Install` once.
-4. Wait for installation to finish (first model pull is large).
-
-## Execute The Repo
-
-1. Click `Install` in Pinokio.
-2. Wait for:
-   - OpenClaw CLI install/update
-   - Ollama install (if missing)
-   - `gpt-oss:20b` pull
-   - OpenClaw config set to `ollama/gpt-oss:20b`
-3. Click `Start`.
-4. Open the `Open Dashboard` tab from the launcher.
-
-If no Ollama models are detected, run `ollama serve` once in a terminal, then run `Install` again.
-
-### Option B: Clone then open in Pinokio
-
-```bash
-git clone https://github.com/LazyBacO/openclaw-self-contained-pinokio.git
-```
-
-Then open that folder as a Pinokio project and run `Install`, then `Start`.
-
-## What The Scripts Do
+## Menu Scripts
 
 - `install.json`
-  - Installs OpenClaw globally
-  - Installs Ollama if needed
-  - Runs non-interactive OpenClaw onboarding in local/loopback mode
+  - Installs/updates OpenClaw CLI
+  - Installs Ollama if missing
   - Pulls `gpt-oss:20b`
-  - Sets default model to `ollama/gpt-oss:20b`
+  - Configures OpenClaw for local usage
+- `finance.js`
+  - Sets `agents.defaults.sandbox.mode=off` for local no-Docker agent turns
+  - Runs the Finance Copilot server (`app/server.js`)
+  - Captures and exposes web URL to Pinokio UI
+  - Supports GitHub auto-save every 30 minutes (`git add/commit/push`)
+  - Alternates commit author turn-by-turn: Strategist -> Builder -> Strategist -> ...
+  - Optional consultation: active agent proposes commit focus, other agent reviews
 - `start.js`
-  - Forces local gateway mode + Ollama provider config
-  - Starts OpenClaw gateway
-  - Captures dashboard URL and exposes it to Pinokio UI
+  - Starts OpenClaw gateway + dashboard
 - `update.js`
-  - Pulls launcher updates
-  - Updates OpenClaw CLI
-  - Refreshes local model + model config
+  - Updates launcher + OpenClaw model config
+
+## App API
+
+Base URL is the Finance Copilot URL shown by Pinokio, usually `http://127.0.0.1:<port>`.
+
+### Endpoints
+
+- `GET /api/health`
+- `GET /api/portfolio`
+- `POST /api/portfolio`
+- `POST /api/strategy`
+- `GET /api/autosave`
+- `POST /api/autosave`
+- `POST /api/autosave/run`
+
+`POST /api/portfolio` expects:
+
+```json
+{
+  "portfolio": {
+    "owner": "Alex",
+    "objective": "Grow CAD capital with controlled risk",
+    "accounts": [
+      {
+        "id": "acc-1",
+        "name": "Main TFSA",
+        "type": "TFSA",
+        "balanceCad": 15000
+      }
+    ],
+    "holdings": [
+      {
+        "id": "stk-1",
+        "symbol": "RY.TO",
+        "shares": 25,
+        "avgCostCad": 129.5,
+        "currentPriceCad": 138.2,
+        "accountType": "TFSA"
+      }
+    ],
+    "gitAutoSave": {
+      "enabled": true,
+      "remote": "origin",
+      "branch": "main",
+      "consultBetweenAgents": true,
+      "nextAgentId": "strategist",
+      "agents": {
+        "strategist": {
+          "id": "strategist",
+          "name": "Strategist",
+          "email": "strategist@users.noreply.github.com"
+        },
+        "builder": {
+          "id": "builder",
+          "name": "Builder",
+          "email": "builder@users.noreply.github.com"
+        }
+      },
+      "commitPrefix": "finance-autosave"
+    }
+  }
+}
+```
+
+`POST /api/strategy` expects:
+
+```json
+{
+  "goal": "Optional goal override",
+  "riskProfile": "balanced",
+  "horizonMonths": 24
+}
+```
 
 ## Programmatic Access
 
 ### JavaScript (Node.js)
 
 ```javascript
-import { execSync } from "node:child_process";
+const baseUrl = "http://127.0.0.1:3199";
 
-// Gateway health as JSON
-const health = execSync("openclaw gateway health --json", { encoding: "utf-8" });
-console.log(JSON.parse(health));
+async function main() {
+  const saveResponse = await fetch(`${baseUrl}/api/portfolio`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      portfolio: {
+        owner: "Alex",
+        objective: "Long term CAD growth",
+        accounts: [{ id: "acc-1", name: "TFSA", type: "TFSA", balanceCad: 12000 }],
+        holdings: [{ id: "stk-1", symbol: "AAPL", shares: 10, avgCostCad: 210, currentPriceCad: 235, accountType: "TFSA" }]
+      }
+    })
+  });
+  const saveJson = await saveResponse.json();
+  console.log("Saved owner:", saveJson.portfolio.owner);
+
+  const strategyResponse = await fetch(`${baseUrl}/api/strategy`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ riskProfile: "balanced", horizonMonths: 24 })
+  });
+  const strategyJson = await strategyResponse.json();
+  console.log(strategyJson.strategy.rounds.strategistFinal);
+}
+
+main().catch(console.error);
 ```
 
 ### Python
 
 ```python
-import json
-import subprocess
+import requests
 
-out = subprocess.check_output(
-    ["openclaw", "gateway", "health", "--json"],
-    text=True
+base_url = "http://127.0.0.1:3199"
+
+portfolio_payload = {
+    "portfolio": {
+        "owner": "Alex",
+        "objective": "Long term CAD growth",
+        "accounts": [
+            {"id": "acc-1", "name": "TFSA", "type": "TFSA", "balanceCad": 12000}
+        ],
+        "holdings": [
+            {
+                "id": "stk-1",
+                "symbol": "AAPL",
+                "shares": 10,
+                "avgCostCad": 210,
+                "currentPriceCad": 235,
+                "accountType": "TFSA"
+            }
+        ]
+    }
+}
+
+r1 = requests.post(f"{base_url}/api/portfolio", json=portfolio_payload, timeout=30)
+r1.raise_for_status()
+
+r2 = requests.post(
+    f"{base_url}/api/strategy",
+    json={"riskProfile": "balanced", "horizonMonths": 24},
+    timeout=600
 )
-print(json.loads(out))
+r2.raise_for_status()
+print(r2.json()["strategy"]["rounds"]["strategistFinal"])
 ```
 
-### Curl (Ollama Inference API)
+### Curl
 
 ```bash
-curl -s http://127.0.0.1:11434/api/generate \
-  -d '{"model":"gpt-oss:20b","prompt":"Summarize today tasks","stream":false}'
+curl -s http://127.0.0.1:3199/api/portfolio \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"portfolio":{"owner":"Alex","objective":"Long term CAD growth","accounts":[{"id":"acc-1","name":"TFSA","type":"TFSA","balanceCad":12000}],"holdings":[{"id":"stk-1","symbol":"AAPL","shares":10,"avgCostCad":210,"currentPriceCad":235,"accountType":"TFSA"}]}}'
+
+curl -s http://127.0.0.1:3199/api/strategy \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"riskProfile":"balanced","horizonMonths":24}'
+
+curl -s http://127.0.0.1:3199/api/autosave \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"gitAutoSave":{"enabled":true,"remote":"origin","branch":"main","consultBetweenAgents":true,"nextAgentId":"strategist","agents":{"strategist":{"id":"strategist","name":"Strategist","email":"strategist@users.noreply.github.com"},"builder":{"id":"builder","name":"Builder","email":"builder@users.noreply.github.com"}},"commitPrefix":"finance-autosave"}}'
+
+curl -s http://127.0.0.1:3199/api/autosave/run \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{}'
 ```

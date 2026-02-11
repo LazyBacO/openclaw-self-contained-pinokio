@@ -3,6 +3,7 @@ module.exports = {
   menu: async (kernel, info) => {
     let running = {
       install: info.running("install.json"),
+      finance: info.running("finance.js"),
       start: info.running("start.js"),
       update: info.running("update.js"),
       uninstall: info.running("uninstall.js")
@@ -13,6 +14,27 @@ module.exports = {
         icon: "fa-solid fa-plug",
         text: "Installing",
         href: "install.json",
+      }]
+    }
+    if (running.finance) {
+      let local = info.local("finance.js")
+      if (local && local.url) {
+        return [{
+          default: true,
+          icon: "fa-solid fa-chart-line",
+          text: "Open Finance Copilot",
+          href: local.url,
+        }, {
+          icon: "fa-solid fa-terminal",
+          text: "Finance Terminal",
+          href: "finance.js",
+        }]
+      }
+      return [{
+        default: true,
+        icon: "fa-solid fa-terminal",
+        text: "Launching Finance Copilot",
+        href: "finance.js",
       }]
     }
     if (running.start) {
@@ -54,8 +76,12 @@ module.exports = {
     }
     return [{
       default: true,
+      icon: "fa-solid fa-chart-line",
+      text: "Finance Copilot",
+      href: "finance.js",
+    }, {
       icon: "fa-solid fa-circle-play",
-      text: "Start",
+      text: "OpenClaw Dashboard",
       href: "start.js",
     }, {
       icon: "fa-solid fa-plug",
