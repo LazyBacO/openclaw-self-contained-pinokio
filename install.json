@@ -8,20 +8,53 @@
     },
     {
       "method": "shell.run",
+      "when": "{{platform === 'win32' && !which('ollama')}}",
       "params": {
-        "input": true,
-        "message": "openclaw onboard --skip-ui",
-        "on": [{
-          "event": "/.*onboarding complete.*/i",
-          "kill": true
-        }]
+        "message": "winget install -e --id Ollama.Ollama --accept-source-agreements --accept-package-agreements"
       }
     },
     {
-      "method": "modal",
+      "method": "shell.run",
+      "when": "{{platform === 'darwin' && !which('ollama')}}",
       "params": {
-        "title": "Onboarding Complete",
-        "description": "Now click the 'start' tab to get started"
+        "message": "brew install ollama"
+      }
+    },
+    {
+      "method": "shell.run",
+      "when": "{{platform === 'linux' && !which('ollama')}}",
+      "params": {
+        "message": "conda install -y -c conda-forge ollama"
+      }
+    },
+    {
+      "method": "shell.run",
+      "params": {
+        "env": {
+          "OLLAMA_API_KEY": "ollama-local"
+        },
+        "message": [
+          "openclaw onboard --non-interactive --accept-risk --mode local --flow quickstart --auth-choice skip --gateway-bind loopback --gateway-port 18789 --skip-ui --skip-daemon --skip-health --skip-skills --skip-channels",
+          "openclaw config set gateway.mode local",
+          "openclaw config set gateway.bind loopback"
+        ]
+      }
+    },
+    {
+      "method": "shell.run",
+      "when": "{{which('ollama')}}",
+      "params": {
+        "message": "ollama pull gpt-oss:20b"
+      }
+    },
+    {
+      "method": "shell.run",
+      "when": "{{which('ollama')}}",
+      "params": {
+        "env": {
+          "OLLAMA_API_KEY": "ollama-local"
+        },
+        "message": "openclaw models set ollama/gpt-oss:20b"
       }
     }
   ]
