@@ -15,6 +15,16 @@ No LM Studio dependency is required.
 - Pinokio installed on your machine
 - Internet access for first-time installs (`openclaw`, `ollama`, and model download)
 
+## Open In Pinokio
+
+1. Launch Pinokio.
+2. Go to the home screen and choose `Discover` (or `Add` / `Import from URL`, depending on your Pinokio version).
+3. Paste this repo URL:
+   - `https://github.com/LazyBacO/openclaw-self-contained-pinokio`
+4. Confirm download/import.
+5. Open the imported project from your Pinokio library.
+6. In the project UI, click `Install`, then `Start`.
+
 ### Option A: Install via Pinokio (Recommended)
 
 1. In Pinokio, add/download this repository:
